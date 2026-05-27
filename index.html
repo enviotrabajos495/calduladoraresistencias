@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Calculadora de Resistencias</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700;900&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:#0f172a;
+    color:white;
+    font-family:'Nunito',sans-serif;
+}
+
+header{
+    background:#020617;
+    padding:30px;
+    text-align:center;
+    border-bottom:4px solid #1e293b;
+}
+
+header h1{
+    margin:0;
+    font-size:2.7rem;
+}
+
+header p{
+    margin-top:10px;
+    color:#cbd5e1;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+    padding:20px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    gap:20px;
+}
+
+.panel{
+    background:#111827;
+    border-radius:25px;
+    padding:25px;
+}
+
+.panel h2{
+    margin-top:0;
+}
+
+.control{
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:700;
+}
+
+select{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#1e293b;
+    color:white;
+    font-size:1rem;
+}
+
+.viewer{
+    background:#111827;
+    border-radius:25px;
+    padding:30px;
+}
+
+.resistor-area{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-top:20px;
+}
+
+.resistor{
+    width:800px;
+    height:180px;
+    position:relative;
+}
+
+.wire-left,
+.wire-right{
+    position:absolute;
+    top:85px;
+    width:180px;
+    height:10px;
+    background:#94a3b8;
+}
+
+.wire-left{
+    left:0;
+}
+
+.wire-right{
+    right:0;
+}
+
+.body{
+    position:absolute;
+    left:180px;
+    top:25px;
+    width:480px;
+    height:120px;
+    background:#d6b98c;
+    border-radius:60px;
+    box-shadow:inset 0 0 20px rgba(0,0,0,0.3);
+}
+
+.band{
+    position:absolute;
+    top:0;
+    width:28px;
+    height:120px;
+}
+
+
+.results{
+    margin-top:40px;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:20px;
+}
+
+.result-box{
+    background:#020617;
+    border-radius:18px;
+    padding:20px;
+    text-align:center;
+}
+
+.result-box h3{
+    margin:0;
+    color:#cbd5e1;
+}
+
+.value{
+    margin-top:15px;
+    font-size:2rem;
+    font-weight:900;
+}
+
+.info{
+    margin-top:25px;
+    background:#1e293b;
+    padding:20px;
+    border-radius:18px;
+    line-height:1.7;
+}
+
+.challenge{
+    margin-top:25px;
+    background:#1d4ed8;
+    padding:20px;
+    border-radius:18px;
+    font-weight:700;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:14px;
+    background:#334155;
+    color:white;
+    font-size:1rem;
+    cursor:pointer;
+    margin-top:15px;
+}
+
+button:hover{
+    transform:scale(1.02);
+}
+
+@media(max-width:1000px){
+
+.grid{
+    grid-template-columns:1fr;
+}
+
+.resistor{
+    transform:scale(0.8);
+}
+
+.results{
+    grid-template-columns:1fr;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<h1>🎨 Calculadora de Resistencias</h1>
+
+<p>
+Aprende el código de colores de las resistencias experimentando.
+</p>
+
+</header>
+
+<div class="container">
+
+<div class="grid">
+
+<!-- PANEL -->
+<div class="panel">
+
+<h2>⚙ Configuración</h2>
+
+<div class="control">
+<label>Tipo de resistencia</label>
+
+<select id="tipo" onchange="actualizarBandas()">
+<option value="4">4 bandas</option>
+<option value="5">5 bandas</option>
+</select>
+</div>
+
+<div class="control">
+<label>Banda 1</label>
+<select id="band1" onchange="actualizar()"></select>
+</div>
+
+<div class="control">
+<label>Banda 2</label>
+<select id="band2" onchange="actualizar()"></select>
+</div>
+
+<div class="control" id="terceraBandaBox" style="display:none;">
+<label>Banda 3</label>
+<select id="band3" onchange="actualizar()"></select>
+</div>
+
+<div class="control">
+<label>Multiplicador</label>
+<select id="mult" onchange="actualizar()"></select>
+</div>
+
+<div class="control">
+<label>Tolerancia</label>
+<select id="tol" onchange="actualizar()"></select>
+</div>
+
+<button onclick="resistenciaAleatoria()">
+🎲 Resistencia aleatoria
+</button>
+
+<div class="challenge" id="challenge">
+🎯 Intenta crear una resistencia de 4.7kΩ
+</div>
+
+</div>
+
+<!-- VISOR -->
+<div class="viewer">
+
+<h2>🔍 Visualización</h2>
+
+<div class="resistor-area">
+
+<div class="resistor">
+
+<div class="wire-left"></div>
+<div class="wire-right"></div>
+
+<div class="body">
+
+<div class="band" id="b1"></div>
+<div class="band" id="b2"></div>
+<div class="band" id="b3"></div>
+<div class="band" id="b4"></div>
+<div class="band" id="b5"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="results">
+
+<div class="result-box">
+<h3>Valor</h3>
+<div class="value" id="valor">0 Ω</div>
+</div>
+
+<div class="result-box">
+<h3>Tolerancia</h3>
+<div class="value" id="tolerancia">±5%</div>
+</div>
+
+<div class="result-box">
+<h3>Tipo</h3>
+<div class="value" id="tipoTxt">4 Bandas</div>
+</div>
+
+</div>
+
+<div class="info">
+
+🎨 Cada color representa un número.<br><br>
+
+⚡ Las primeras bandas indican cifras.<br>
+⚡ La siguiente banda multiplica el valor.<br>
+⚡ La última banda indica tolerancia.
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const colores = {
+
+    negro:{valor:0,color:"#000000"},
+    marron:{valor:1,color:"#7c2d12"},
+    rojo:{valor:2,color:"#dc2626"},
+    naranja:{valor:3,color:"#ea580c"},
+    amarillo:{valor:4,color:"#facc15"},
+    verde:{valor:5,color:"#16a34a"},
+    azul:{valor:6,color:"#2563eb"},
+    violeta:{valor:7,color:"#7c3aed"},
+    gris:{valor:8,color:"#6b7280"},
+    blanco:{valor:9,color:"#ffffff"}
+
+};
+
+const tolerancias = {
+
+    dorado:"±5%",
+    plateado:"±10%",
+    marron:"±1%",
+    rojo:"±2%"
+
+};
+
+// COLORES VISUALES DE TOLERANCIA
+const coloresTolerancia = {
+
+    dorado:"#d4af37",
+    plateado:"#c0c0c0",
+    marron:"#7c2d12",
+    rojo:"#dc2626"
+
+};
+
+const multiplicadores = {
+
+    negro:1,
+    marron:10,
+    rojo:100,
+    naranja:1000,
+    amarillo:10000,
+    verde:100000,
+    azul:1000000
+
+};
+
+function llenarSelects(){
+
+    const selects = ["band1","band2","band3","mult"];
+
+    selects.forEach(id=>{
+
+        const select = document.getElementById(id);
+
+        for(let color in colores){
+
+            let option = document.createElement("option");
+
+            option.value = color;
+
+            option.textContent =
+            color.charAt(0).toUpperCase() + color.slice(1);
+
+            select.appendChild(option);
+
+        }
+
+    });
+
+    const tol = document.getElementById("tol");
+
+    for(let color in tolerancias){
+
+        let option = document.createElement("option");
+
+        option.value = color;
+
+        option.textContent =
+        color.charAt(0).toUpperCase() + color.slice(1);
+
+        tol.appendChild(option);
+
+    }
+
+}
+
+function actualizarBandas(){
+
+    const tipo = document.getElementById("tipo").value;
+
+    // =========================
+    // RESISTENCIA DE 4 BANDAS
+    // =========================
+
+    if(tipo == "4"){
+
+        document.getElementById("terceraBandaBox").style.display =
+        "none";
+
+        // Mostrar solo 4 bandas
+        document.getElementById("b5").style.display =
+        "none";
+
+        // Posiciones:
+        // 3 bandas juntas a la izquierda
+        // tolerancia separada a la derecha
+
+        document.getElementById("b1").style.left = "55px";
+
+        document.getElementById("b2").style.left = "110px";
+
+        document.getElementById("b3").style.left = "165px";
+
+        document.getElementById("b4").style.left = "365px";
+
+    }
+
+    // =========================
+    // RESISTENCIA DE 5 BANDAS
+    // =========================
+
+    else{
+
+        document.getElementById("terceraBandaBox").style.display =
+        "block";
+
+        document.getElementById("b5").style.display =
+        "block";
+
+        // 4 bandas alineadas a la izquierda
+        // tolerancia separada a la derecha
+
+        document.getElementById("b1").style.left = "45px";
+
+        document.getElementById("b2").style.left = "95px";
+
+        document.getElementById("b3").style.left = "145px";
+
+        document.getElementById("b4").style.left = "195px";
+
+        document.getElementById("b5").style.left = "365px";
+
+    }
+
+    actualizar();
+
+}
+
+function actualizar(){
+
+    const tipo = document.getElementById("tipo").value;
+
+    const b1 = document.getElementById("band1").value;
+    const b2 = document.getElementById("band2").value;
+    const b3 = document.getElementById("band3").value;
+
+    const mult = document.getElementById("mult").value;
+    const tol = document.getElementById("tol").value;
+
+    // BANDAS BASE
+    document.getElementById("b1").style.background =
+    colores[b1].color;
+
+    document.getElementById("b2").style.background =
+    colores[b2].color;
+
+    let numero;
+    let valorFinal;
+
+    if(tipo == "4"){
+
+        // 4 BANDAS
+        // b1 b2 multiplicador tolerancia
+
+        numero =
+        parseInt("" +
+        colores[b1].valor +
+        colores[b2].valor);
+
+        valorFinal =
+        numero * multiplicadores[mult];
+
+        // Banda 3 = multiplicador
+        document.getElementById("b3").style.background =
+        colores[mult].color;
+
+        // Banda 4 = tolerancia
+        document.getElementById("b4").style.background =
+        coloresTolerancia[tol];
+
+        // Mostrar banda 4
+        document.getElementById("b4").style.display =
+        "block";
+
+        // Ocultar banda 5
+        document.getElementById("b5").style.display =
+        "none";
+
+    }else{
+
+        // 5 BANDAS
+        // b1 b2 b3 multiplicador tolerancia
+
+        numero =
+        parseInt("" +
+        colores[b1].valor +
+        colores[b2].valor +
+        colores[b3].valor);
+
+        valorFinal =
+        numero * multiplicadores[mult];
+
+        // Banda 3 = tercera cifra
+        document.getElementById("b3").style.background =
+        colores[b3].color;
+
+        // Banda 4 = multiplicador
+        document.getElementById("b4").style.background =
+        colores[mult].color;
+
+        // Banda 5 = tolerancia
+        document.getElementById("b5").style.background =
+        coloresTolerancia[tol];
+
+        // Mostrar banda 5
+        document.getElementById("b5").style.display =
+        "block";
+
+    }
+
+    // TEXTO RESULTADOS
+
+    document.getElementById("valor").textContent =
+    formatear(valorFinal);
+
+    document.getElementById("tolerancia").textContent =
+    tolerancias[tol];
+
+    document.getElementById("tipoTxt").textContent =
+    tipo + " Bandas";
+
+}
+
+function formatear(valor){
+
+    if(valor >= 1000000){
+
+        return (valor / 1000000).toFixed(1) + " MΩ";
+
+    }
+
+    if(valor >= 1000){
+
+        return (valor / 1000).toFixed(1) + " kΩ";
+
+    }
+
+    return valor + " Ω";
+
+}
+
+function resistenciaAleatoria(){
+
+    const coloresArray = Object.keys(colores);
+
+    document.getElementById("band1").value =
+    coloresArray[Math.floor(Math.random()*10)];
+
+    document.getElementById("band2").value =
+    coloresArray[Math.floor(Math.random()*10)];
+
+    document.getElementById("band3").value =
+    coloresArray[Math.floor(Math.random()*10)];
+
+    document.getElementById("mult").value =
+    coloresArray[Math.floor(Math.random()*7)];
+
+    const tolArray = Object.keys(tolerancias);
+
+    document.getElementById("tol").value =
+    tolArray[Math.floor(Math.random()*tolArray.length)];
+
+    actualizar();
+
+}
+
+llenarSelects();
+actualizarBandas();
+
+</script>
+
+</body>
+</html>
